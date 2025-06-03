@@ -1,0 +1,109 @@
+.maze-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+
+.maze-button {
+  background-color: #0091ff;
+  margin: 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+}
+
+.maze {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.cell {
+  width: 5px;
+  height: 5px;
+  border: 1px solid white;
+}
+
+.cell.wall {
+  background-color: black;
+}
+
+.cell.path {
+  background-color: white;
+}
+
+.cell.start {
+  background-color: green;
+}
+
+.cell.end {
+  background-color: red;
+}
+
+/* Visited animation: gradual darkening shades */
+.visited-0 {
+  background-color: #e0f7fa;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-1 {
+  background-color: #b2ebf2;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-2 {
+  background-color: #80deea;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-3 {
+  background-color: #4dd0e1;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-4 {
+  background-color: #26c6da;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-5 {
+  background-color: #00bcd4;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-6 {
+  background-color: #00acc1;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-7 {
+  background-color: #0097a7;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-8 {
+  background-color: #00838f;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+.visited-9 {
+  background-color: #006064;
+  animation: fadeDark 1s ease-in-out forwards;
+}
+
+@keyframes fadeDark {
+  from {
+    filter: brightness(120%);
+  }
+  to {
+    filter: brightness(80%);
+  }
+}
