@@ -10,121 +10,173 @@ export default function Maze({ width = 101, height = 101 }) {
     generateMaze(width, height);
   }, []);
 
-  function bfs(startNode) {
-    let queue = [startNode];
-    let visited = new Set([`${startNode[0]},${startNode[1]}`]);
+  
+function bfs(startNode) {
+  let queue = [startNode];
+  let visited = new Set([`${startNode[0]},${startNode[1]}`]);
+  let parentMap = {};
 
-    function visitCell([x, y]) {
-      const level = Math.min(visitCounter.current++, 8);
-      setMaze((prevMaze) =>
-        prevMaze.map((row, rowIndex) =>
-          row.map((cell, cellIndex) => {
-            if (rowIndex === y && cellIndex === x) {
-              if (cell === "end") return "end";
-              return `visited-${level}`;
-            }
-            return cell;
-          })
-        )
-      );
-      if (maze[y][x] === "end") return true;
-      return false;
-    }
-
-    function step() {
-      if (queue.length === 0) return;
-
-      const [x, y] = queue.shift();
-      const dirs = [
-        [0, 1],
-        [1, 0],
-        [0, -1],
-        [-1, 0],
-      ];
-
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx;
-        const ny = y + dy;
-
-        if (
-          nx >= 0 &&
-          nx < width &&
-          ny >= 0 &&
-          ny < height &&
-          !visited.has(`${nx},${ny}`)
-        ) {
-          visited.add(`${nx},${ny}`);
-          if (maze[ny][nx] === "path" || maze[ny][nx] === "end") {
-            if (visitCell([nx, ny])) return;
-            queue.push([nx, ny]);
+  function visitCell([x, y]) {
+    const level = Math.min(visitCounter.current++, 8);
+    setMaze((prevMaze) =>
+      prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (rowIndex === y && cellIndex === x) {
+            if (cell === "end") return "end";
+            return `visited-${level}`;
           }
-        }
-      }
-
-      const timeoutId = setTimeout(step, 0.001);
-      setTimeoutIds((prev) => [...prev, timeoutId]);
-    }
-
-    step();
+          return cell;
+        })
+      )
+    );
+    return maze[y][x] === "end";
   }
 
-  function dfs(startNode) {
-    let stack = [startNode];
-    let visited = new Set([`${startNode[0]},${startNode[1]}`]);
-
-    function visitCell([x, y]) {
-      const level = Math.min(visitCounter.current++, 8);
-      setMaze((prevMaze) =>
-        prevMaze.map((row, rowIndex) =>
-          row.map((cell, cellIndex) => {
-            if (rowIndex === y && cellIndex === x) {
-              if (cell === "end") return "end";
-              return `visited-${level}`;
-            }
-            return cell;
-          })
-        )
-      );
-      if (maze[y][x] === "end") return true;
-      return false;
+  function tracePath(end) {
+    let path = [];
+    let current = `${end[0]},${end[1]}`;
+    while (current && parentMap[current]) {
+      const [x, y] = parentMap[current];
+      path.push([x, y]);
+      current = `${x},${y}`;
     }
 
-    function step() {
-      if (stack.length === 0) return;
-
-      const [x, y] = stack.pop();
-      const dirs = [
-        [0, 1],
-        [1, 0],
-        [0, -1],
-        [-1, 0],
-      ];
-
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx;
-        const ny = y + dy;
-
-        if (
-          nx >= 0 &&
-          nx < width &&
-          ny >= 0 &&
-          ny < height &&
-          !visited.has(`${nx},${ny}`)
-        ) {
-          visited.add(`${nx},${ny}`);
-          if (maze[ny][nx] === "path" || maze[ny][nx] === "end") {
-            if (visitCell([nx, ny])) return;
-            stack.push([nx, ny]);
+    setMaze((prevMaze) =>
+      prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (path.some(([x, y]) => rowIndex === y && cellIndex === x)) {
+            return "path-trace";
           }
+          return cell;
+        })
+      )
+    );
+  }
+
+  function step() {
+    if (queue.length === 0) return;
+
+    const [x, y] = queue.shift();
+    const dirs = [
+      [0, 1],
+      [1, 0],
+      [0, -1],
+      [-1, 0],
+    ];
+
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (
+        nx >= 0 &&
+        nx < width &&
+        ny >= 0 &&
+        ny < height &&
+        !visited.has(`${nx},${ny}`)
+      ) {
+        visited.add(`${nx},${ny}`);
+        if (maze[ny][nx] === "path" || maze[ny][nx] === "end") {
+          parentMap[`${nx},${ny}`] = [x, y];
+          if (visitCell([nx, ny])) {
+            tracePath([nx, ny]);
+            return;
+          }
+          queue.push([nx, ny]);
         }
       }
-
-      const timeoutId = setTimeout(step, 0.001);
-      setTimeoutIds((prev) => [...prev, timeoutId]);
     }
 
-    step();
+    const timeoutId = setTimeout(step, 0.001);
+    setTimeoutIds((prev) => [...prev, timeoutId]);
   }
+
+  step();
+}
+
+ function dfs(startNode) {
+  let stack = [startNode];
+  let visited = new Set([`${startNode[0]},${startNode[1]}`]);
+  let parentMap = {};
+
+  function visitCell([x, y]) {
+    const level = Math.min(visitCounter.current++, 8);
+    setMaze((prevMaze) =>
+      prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (rowIndex === y && cellIndex === x) {
+            if (cell === "end") return "end";
+            return `visited-${level}`;
+          }
+          return cell;
+        })
+      )
+    );
+    return maze[y][x] === "end";
+  }
+
+  function tracePath(end) {
+    let path = [];
+    let current = `${end[0]},${end[1]}`;
+    while (current && parentMap[current]) {
+      const [x, y] = parentMap[current];
+      path.push([x, y]);
+      current = `${x},${y}`;
+    }
+
+    setMaze((prevMaze) =>
+      prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (path.some(([x, y]) => rowIndex === y && cellIndex === x)) {
+            return "path-trace";
+          }
+          return cell;
+        })
+      )
+    );
+  }
+
+  function step() {
+    if (stack.length === 0) return;
+
+    const [x, y] = stack.pop();
+    const dirs = [
+      [0, 1],
+      [1, 0],
+      [0, -1],
+      [-1, 0],
+    ];
+
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (
+        nx >= 0 &&
+        nx < width &&
+        ny >= 0 &&
+        ny < height &&
+        !visited.has(`${nx},${ny}`)
+      ) {
+        visited.add(`${nx},${ny}`);
+        if (maze[ny][nx] === "path" || maze[ny][nx] === "end") {
+          parentMap[`${nx},${ny}`] = [x, y];
+          if (visitCell([nx, ny])) {
+            tracePath([nx, ny]);
+            return;
+          }
+          stack.push([nx, ny]);
+        }
+      }
+    }
+
+    const timeoutId = setTimeout(step, 0.001);
+    setTimeoutIds((prev) => [...prev, timeoutId]);
+  }
+
+  step();
+}
+
 function dijkstra(startNode) {
   let pq = [[0, startNode]];
   let visited = new Set();
