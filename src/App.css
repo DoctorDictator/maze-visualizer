@@ -101,6 +101,9 @@
   background-color: #006064;
   animation: fadeDark 1s ease-in-out forwards;
 }
+.cell.path-trace {
+  background-color: yellow;
+}
 
 @keyframes fadeDark {
   from {
