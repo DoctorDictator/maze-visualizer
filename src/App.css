@@ -9,7 +9,8 @@
 .controls {
   display: flex;
   flex-direction: row;
-  margin-bottom: 20px;
+  margin-bottom: 60px;
+  z-index:1;
 }
 
 .maze-button {
