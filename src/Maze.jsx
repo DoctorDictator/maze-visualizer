@@ -125,12 +125,14 @@ export default function Maze({ width = 101, height = 101 }) {
 
     step();
   }
-  function dijkstra(startNode) {
-  let pq = [[0, startNode]]; // [distance, [x, y]]
+function dijkstra(startNode) {
+  let pq = [[0, startNode]];
   let visited = new Set();
   let distances = Array(height)
     .fill()
     .map(() => Array(width).fill(Infinity));
+  let parentMap = {};
+
   distances[startNode[1]][startNode[0]] = 0;
 
   function visitCell([x, y]) {
@@ -146,21 +148,44 @@ export default function Maze({ width = 101, height = 101 }) {
         })
       )
     );
-    if (maze[y][x] === "end") return true;
-    return false;
+    return maze[y][x] === "end";
+  }
+
+  function tracePath(end) {
+    let path = [];
+    let current = `${end[0]},${end[1]}`;
+    while (current && parentMap[current]) {
+      const [x, y] = parentMap[current];
+      path.push([x, y]);
+      current = `${x},${y}`;
+    }
+
+    setMaze((prevMaze) =>
+      prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (path.some(([x, y]) => rowIndex === y && cellIndex === x)) {
+            return "path-trace";
+          }
+          return cell;
+        })
+      )
+    );
   }
 
   function step() {
     if (pq.length === 0) return;
 
-    pq.sort((a, b) => a[0] - b[0]); // sort by distance
+    pq.sort((a, b) => a[0] - b[0]);
     const [dist, [x, y]] = pq.shift();
     const key = `${x},${y}`;
 
     if (visited.has(key)) return setTimeout(step, 0.001);
     visited.add(key);
 
-    if (visitCell([x, y])) return;
+    if (visitCell([x, y])) {
+      tracePath([x, y]);
+      return;
+    }
 
     const dirs = [
       [0, 1],
@@ -184,6 +209,7 @@ export default function Maze({ width = 101, height = 101 }) {
           const newDist = dist + 1;
           if (newDist < distances[ny][nx]) {
             distances[ny][nx] = newDist;
+            parentMap[`${nx},${ny}`] = [x, y];
             pq.push([newDist, [nx, ny]]);
           }
         }
@@ -196,6 +222,7 @@ export default function Maze({ width = 101, height = 101 }) {
 
   step();
 }
+
 
 
   function generateMaze(height, width) {
