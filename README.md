@@ -19,6 +19,9 @@ It’s all about learning how pathfinding works – but in a way that looks and 
 - **Depth-First Search (DFS)**  
   Dives deep first, doesn’t always find the shortest path, but can be faster in some cases.
 
+- **Dijkstra’s Algorithm**  
+  A weighted algorithm that finds the shortest path from the start to the end node. It guarantees the optimal path and works well even when node weights vary.
+
 ## 🛠️ Tech Stack
 
 - **React** (for UI)
